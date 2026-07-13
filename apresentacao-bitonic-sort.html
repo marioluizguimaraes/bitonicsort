@@ -367,24 +367,10 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:14px;pa
     </div>
   </section>
 
-  <!-- 4 BITONIC MERGE (static storyboard) -->
+  <!-- 4 CONSTRUIR -->
   <section class="slide">
     <div class="wrap">
-      <div class="eyebrow">03 — A peça-chave</div>
-      <h2>Bitonic Merge, do início ao fim</h2>
-      <p style="max-width:72ch">Dada uma montanha <span class="mono ink">[3, 4, 8, 6]</span>, o merge
-      compara posições parceiras e vai reduzindo a distância pela metade até tudo ficar ordenado.
-      Veja as quatro fotos da mesma sequência:</p>
-      <div class="viz">
-        <div class="storyboard" id="mergeBoard"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5 CONSTRUIR -->
-  <section class="slide">
-    <div class="wrap">
-      <div class="eyebrow">04 — A sacada</div>
+      <div class="eyebrow">03 — A sacada</div>
       <h2>Mas um vetor qualquer não é montanha…</h2>
       <p>…então <strong>a gente constrói</strong>. Ordene a primeira metade
       <span class="up-word">crescente ⬈</span>, a segunda <span class="down-word">decrescente ⬊</span>,
@@ -396,6 +382,20 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:14px;pa
       <div class="callout">Duas peças: <strong>construir a montanha</strong> (½ crescente + ½ decrescente)
       e o <strong>Bitonic Merge</strong> (montanha → ordenado). O algoritmo alterna entre elas em blocos
       cada vez maiores: 2 → 4 → 8 → 16.</div>
+    </div>
+  </section>
+
+  <!-- 5 BITONIC MERGE (static storyboard) -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow">04 — A peça-chave</div>
+      <h2>Bitonic Merge, do início ao fim</h2>
+      <p style="max-width:72ch">Dada uma montanha <span class="mono ink">[3, 4, 8, 6]</span>, o merge
+      compara posições parceiras e vai reduzindo a distância pela metade até tudo ficar ordenado.
+      Veja as quatro fotos da mesma sequência:</p>
+      <div class="viz">
+        <div class="storyboard" id="mergeBoard"></div>
+      </div>
     </div>
   </section>
 
