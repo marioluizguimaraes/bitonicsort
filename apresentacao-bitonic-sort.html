@@ -124,13 +124,14 @@ p strong,.ink{color:var(--ink);font-weight:600}
 .sb-arrow{align-self:center;color:var(--line-strong);font-size:1.5rem;font-weight:700}
 
 /* ---- network (slide 6) ---- */
-.net{position:relative;height:min(66vh,540px)}
-.wire{position:absolute;left:0;right:0;height:1px;background:var(--line-strong)}
-.wire .lbl{position:absolute;left:-2px;top:-11px;font-family:var(--font-mono);font-size:.68rem;color:var(--muted)}
-.chip{position:absolute;width:60px;height:42px;left:108px;display:flex;align-items:center;justify-content:center;
+.net{position:relative;height:min(56vh,460px)}
+.wire{position:absolute;top:4px;bottom:24px;width:1px;background:var(--line-strong)}
+.wire .lbl{position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-mono);font-size:.68rem;color:var(--muted);white-space:nowrap}
+.chip{position:absolute;width:58px;height:42px;display:flex;align-items:center;justify-content:center;
   font-family:var(--font-mono);font-weight:700;font-size:1.2rem;border-radius:11px;background:var(--surface);
   border:1.5px solid var(--line-strong);color:var(--ink);
-  transition:top .5s cubic-bezier(.4,.9,.3,1),border-color .3s,box-shadow .3s,background .3s;margin-top:-21px}
+  transition:left .5s cubic-bezier(.4,.9,.3,1),top .5s cubic-bezier(.4,.9,.3,1),border-color .3s,box-shadow .3s,background .3s;}
 .chip.active{border-color:currentColor;box-shadow:0 0 0 2px currentColor,0 6px 16px -6px currentColor}
 .chip.done{background:var(--down-dim);border-color:var(--down-strong)}
 .cmp-svg{position:absolute;inset:0;overflow:visible;pointer-events:none}
@@ -297,7 +298,9 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:14px;pa
   .mountain{display:none}
   .big-stats,.recap{grid-template-columns:1fr}
   .hint{display:none}
-  .net{height:340px}
+  .net{height:320px}
+  .net .chip{width:34px;height:32px;font-size:.9rem;border-radius:8px}
+  .net .wire .lbl{font-size:.58rem}
   .sb-arrow{transform:rotate(90deg)}
 }
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important}}
@@ -796,14 +799,15 @@ const NET_INPUT=[3,7,4,8,6,2,1,5], N=NET_INPUT.length;
 const STAGES8=buildStages(N);
 $('#netStageCount').textContent='etapa 0 / '+STAGES8.length;
 const net=$('#net');
-let wireY=[],chips=[],wireOf=[],svg,badgeLayer,netStage=0,playing=false,timer=null;
+const CHIP_TOP=12;
+let wireX=[],chips=[],wireOf=[],svg,badgeLayer,netStage=0,playing=false,timer=null;
 
 function layoutNet(){
   net.querySelectorAll('.wire,.chip,.cmp-svg,.badge').forEach(e=>e.remove());
-  const H=net.clientHeight,rows=N,pad=22;wireY=[];
-  for(let w=0;w<rows;w++){
-    const y=pad+(H-2*pad)*w/(rows-1);wireY.push(y);
-    const wire=document.createElement('div');wire.className='wire';wire.style.top=y+'px';
+  const W=net.clientWidth,cols=N,pad=Math.max(30,W*0.045);wireX=[];
+  for(let w=0;w<cols;w++){
+    const x=pad+(W-2*pad)*w/(cols-1);wireX.push(x);
+    const wire=document.createElement('div');wire.className='wire';wire.style.left=x+'px';
     const lbl=document.createElement('span');lbl.className='lbl';lbl.textContent='fio '+w;
     wire.appendChild(lbl);net.appendChild(wire);
   }
@@ -813,7 +817,9 @@ function layoutNet(){
   wireOf=NET_INPUT.map((_,i)=>i);
   positionChips();
 }
-function positionChips(){chips.forEach(c=>{c.el.style.top=wireY[wireOf[c.id]]+'px';});}
+function positionChips(){chips.forEach(c=>{
+  const hw=(c.el.offsetWidth||58)/2;
+  c.el.style.left=(wireX[wireOf[c.id]]-hw)+'px';c.el.style.top=CHIP_TOP+'px';});}
 function arrangement(){const a=[];chips.forEach(c=>a[wireOf[c.id]]=c.val);return a;}
 function willSwap(p){
   const hi=chips.find(c=>wireOf[c.id]===p.i),lo=chips.find(c=>wireOf[c.id]===p.l);
@@ -822,17 +828,19 @@ function willSwap(p){
 function drawStage(stage){
   svg.innerHTML='';net.querySelectorAll('.badge').forEach(b=>b.remove());
   if(!stage)return;
-  const chipX=108+30,laneStart=chipX+78;
+  const H=net.clientHeight,chipH=(chips[0]&&chips[0].el.offsetHeight)||42;
+  const regTop=CHIP_TOP+chipH+28, regBot=H-28, nSlots=stage.pairs.length;
   stage.pairs.forEach((p,pi)=>{
-    const x=laneStart+pi*48,color=p.asc?UP:DOWN,y1=wireY[p.i],y2=wireY[p.l];
+    const y=regTop+(pi+0.5)*(regBot-regTop)/nSlots;
+    const color=p.asc?UP:DOWN,x1=wireX[p.i],x2=wireX[p.l];
     const line=document.createElementNS(SVGNS,'line');
-    line.setAttribute('x1',x);line.setAttribute('x2',x);line.setAttribute('y1',y1);line.setAttribute('y2',y2);
+    line.setAttribute('x1',x1);line.setAttribute('x2',x2);line.setAttribute('y1',y);line.setAttribute('y2',y);
     line.setAttribute('stroke',color);line.setAttribute('stroke-width',2.5);svg.appendChild(line);
-    [y1,y2].forEach(y=>{const d=document.createElementNS(SVGNS,'circle');
+    [x1,x2].forEach(x=>{const d=document.createElementNS(SVGNS,'circle');
       d.setAttribute('cx',x);d.setAttribute('cy',y);d.setAttribute('r',4);d.setAttribute('fill',color);svg.appendChild(d);});
     const swap=willSwap(p),bd=document.createElement('div');
     bd.className='badge '+(swap?'swap':'keep');bd.textContent=swap?'⇄ troca':'= mantém';
-    bd.style.left=x+'px';bd.style.top=((y1+y2)/2)+'px';net.appendChild(bd);
+    bd.style.left=((x1+x2)/2)+'px';bd.style.top=y+'px';net.appendChild(bd);
   });
 }
 function highlightChips(stage){
