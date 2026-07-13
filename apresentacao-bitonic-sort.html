@@ -426,40 +426,6 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:14px;pa
     </div>
   </section>
 
-  <!-- 7 16 ELEMENTOS -->
-  <section class="slide" id="slide16ex">
-    <div class="wrap">
-      <div class="eyebrow">06 — Exemplo real</div>
-      <h2>16 elementos · 4 fases · 10 etapas</h2>
-      <p style="max-width:76ch">Dados exatos do guia. As <b>faixas coloridas</b> mostram os blocos
-      (⬈/⬊), os <b>arcos</b> ligam os pares comparados na etapa, e as barras que <b class="up-word">mudaram</b>
-      ficam destacadas.</p>
-      <div class="viz">
-        <div class="viz-head">
-          <div class="stage-label" id="lbl16">Etapa 0 · vetor embaralhado</div>
-          <div class="mini-legend">
-            <span style="color:var(--up-strong)">■ bloco ⬈</span>
-            <span style="color:var(--down-strong)">■ bloco ⬊</span>
-            <span style="color:var(--up-strong)">▢ barra alterada</span>
-          </div>
-        </div>
-        <div class="bars16wrap" id="bars16wrap">
-          <div class="bands" id="bands16"></div>
-          <div class="bars16" id="bars16"></div>
-          <svg class="pairs16" id="pairs16"></svg>
-        </div>
-        <div class="step-cap" id="cap16">Etapa 0 · vetor embaralhado</div>
-        <div class="progress-mini"><i id="prog16"></i></div>
-        <div class="controls">
-          <button class="btn primary" id="play16">Tocar ▶</button>
-          <button class="btn" id="back16">◂ Voltar</button>
-          <button class="btn" id="step16">Avançar ▸</button>
-          <button class="btn" id="reset16">Reiniciar</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- QR EXCALIDRAW (antes das imagens) -->
   <section class="slide" id="qrslide">
     <div class="wrap">
@@ -509,6 +475,40 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:14px;pa
       <p class="print-note">Após as 10 etapas, os 16 elementos ficam totalmente ordenados, do menor ao maior.</p>
       <div class="print-card"><img loading="lazy" src="11.png" alt="Bitonic sort — resultado final ordenado (1 a 16)"></div>
       <div class="print-legend"><span>1 → 16 em ordem crescente ⬈</span></div>
+    </div>
+  </section>
+
+  <!-- 16 ELEMENTOS (exemplo dinâmico) -->
+  <section class="slide" id="slide16ex">
+    <div class="wrap">
+      <div class="eyebrow">Exemplo dinâmico</div>
+      <h2>16 elementos · 4 fases · 10 etapas</h2>
+      <p style="max-width:76ch">Dados exatos do guia. As <b>faixas coloridas</b> mostram os blocos
+      (⬈/⬊), os <b>arcos</b> ligam os pares comparados na etapa, e as barras que <b class="up-word">mudaram</b>
+      ficam destacadas.</p>
+      <div class="viz">
+        <div class="viz-head">
+          <div class="stage-label" id="lbl16">Etapa 0 · vetor embaralhado</div>
+          <div class="mini-legend">
+            <span style="color:var(--up-strong)">■ bloco ⬈</span>
+            <span style="color:var(--down-strong)">■ bloco ⬊</span>
+            <span style="color:var(--up-strong)">▢ barra alterada</span>
+          </div>
+        </div>
+        <div class="bars16wrap" id="bars16wrap">
+          <div class="bands" id="bands16"></div>
+          <div class="bars16" id="bars16"></div>
+          <svg class="pairs16" id="pairs16"></svg>
+        </div>
+        <div class="step-cap" id="cap16">Etapa 0 · vetor embaralhado</div>
+        <div class="progress-mini"><i id="prog16"></i></div>
+        <div class="controls">
+          <button class="btn primary" id="play16">Tocar ▶</button>
+          <button class="btn" id="back16">◂ Voltar</button>
+          <button class="btn" id="step16">Avançar ▸</button>
+          <button class="btn" id="reset16">Reiniciar</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -730,12 +730,14 @@ addEventListener('keydown',e=>{
   else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(idx-1);}
   else if(e.key==='Home')go(0); else if(e.key==='End')go(total-1);
   else if(e.key==='ArrowDown'){
-    if(idx===5){e.preventDefault();$('#netStep').click();}
-    else if(idx===6){e.preventDefault();$('#step16').click();}
+    const s=slides[idx];
+    if(s.querySelector('#net')){e.preventDefault();$('#netStep').click();}
+    else if(s.querySelector('#bars16')){e.preventDefault();$('#step16').click();}
   }
   else if(e.key==='ArrowUp'){
-    if(idx===5){e.preventDefault();$('#netBack').click();}
-    else if(idx===6){e.preventDefault();$('#back16').click();}
+    const s=slides[idx];
+    if(s.querySelector('#net')){e.preventDefault();$('#netBack').click();}
+    else if(s.querySelector('#bars16')){e.preventDefault();$('#back16').click();}
   }
 });
 
@@ -1033,15 +1035,16 @@ $('#codeSort').innerHTML=highlight(
 /* ---------- lazy init / resize ---------- */
 let netReady=false,s16Ready=false;
 function onEnter(i){
-  if(i===5&&!netReady){netReady=true;requestAnimationFrame(()=>{layoutNet();netReset();});}
-  if(i===6&&!s16Ready){s16Ready=true;requestAnimationFrame(()=>{build16();requestAnimationFrame(render16);});}
+  const s=slides[i]; if(!s)return;
+  if(s.querySelector('#net')&&!netReady){netReady=true;requestAnimationFrame(()=>{layoutNet();netReset();});}
+  if(s.querySelector('#bars16')&&!s16Ready){s16Ready=true;requestAnimationFrame(()=>{build16();requestAnimationFrame(render16);});}
   // carrega iframes só ao entrar no slide
-  const f=slides[i]&&slides[i].querySelector('iframe[data-src]');
+  const f=s.querySelector('iframe[data-src]');
   if(f){f.src=f.dataset.src;delete f.dataset.src;}
 }
 addEventListener('resize',()=>{
-  if(netReady&&idx===5)layoutNet();
-  if(s16Ready&&idx===6&&built16)render16();
+  if(netReady&&slides[idx].querySelector('#net'))layoutNet();
+  if(s16Ready&&built16&&slides[idx].querySelector('#bars16'))render16();
 });
 go(0);
 </script>
